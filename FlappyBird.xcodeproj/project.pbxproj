@@ -14,6 +14,7 @@
 		C1568A6B244D1EED00360DFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1568A6A244D1EED00360DFA /* Assets.xcassets */; };
 		C1568A6E244D1EED00360DFA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C1568A6C244D1EED00360DFA /* LaunchScreen.storyboard */; };
 		C1568A76244D21FE00360DFA /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1568A75244D21FE00360DFA /* GameScene.swift */; };
+		C1568A78244EBCC300360DFA /* Shortbridge30-1.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C1568A77244EBCC300360DFA /* Shortbridge30-1.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		C1568A6D244D1EED00360DFA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C1568A6F244D1EED00360DFA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C1568A75244D21FE00360DFA /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
+		C1568A77244EBCC300360DFA /* Shortbridge30-1.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Shortbridge30-1.mp3"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 				C1568A6A244D1EED00360DFA /* Assets.xcassets */,
 				C1568A6C244D1EED00360DFA /* LaunchScreen.storyboard */,
 				C1568A6F244D1EED00360DFA /* Info.plist */,
+				C1568A77244EBCC300360DFA /* Shortbridge30-1.mp3 */,
 			);
 			path = FlappyBird;
 			sourceTree = "<group>";
@@ -131,6 +134,7 @@
 				C1568A6E244D1EED00360DFA /* LaunchScreen.storyboard in Resources */,
 				C1568A6B244D1EED00360DFA /* Assets.xcassets in Resources */,
 				C1568A69244D1EEC00360DFA /* Main.storyboard in Resources */,
+				C1568A78244EBCC300360DFA /* Shortbridge30-1.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
