@@ -81,7 +81,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
             //鳥に縦方向の力を与える
             bird.physicsBody?.applyImpulse(CGVector(dx:0, dy:15))
-        } else {
+        } else if bird.speed == 0 {
             restart()
         }
     }
@@ -433,8 +433,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let getSound = SKAction.playSoundFileNamed("Shortbridge30-1.mp3", waitForCompletion: false)
             self.run(getSound)
             
-            contact.bodyB.node?.removeFromParent()
-            //取得音
+            //コイン削除
+            if (contact.bodyA.categoryBitMask & coinCategory) == coinCategory {
+                //print("あああああ")
+                contact.bodyA.node?.removeFromParent()
+            } else if (contact.bodyB.categoryBitMask & coinCategory) == coinCategory {
+                //print("いいいいい")
+                contact.bodyB.node?.removeFromParent()
+            }
             
         } else {
             //壁か地面と衝突
