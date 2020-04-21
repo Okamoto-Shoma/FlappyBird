@@ -13,10 +13,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var scrollNode: SKNode!
     var wallNode: SKNode!
     var bird:SKSpriteNode!
+    //課題アイテム用
+    var coinNode: SKSpriteNode!
+    
     //スコア用
     var score = 0
     var scoreLabelNode: SKLabelNode!
     var bestScoreLabelNode: SKLabelNode!
+    //課題アイテム用
+    var coin = 0
+    var coinScoreLabelNode: SKLabelNode!
     
     let userDefaults: UserDefaults = UserDefaults.standard
     
@@ -25,6 +31,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let groundCategory: UInt32 = 1 << 1
     let wallCategory: UInt32 = 1 << 2
     let scoreCategory: UInt32 = 1 << 3
+    //課題アイテム用
+    let coinCategory: UInt32 = 1 << 4
     
 //MARK: -Life Cycle
     
@@ -38,7 +46,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //背景色
         backgroundColor = UIColor(red: 0.15, green: 0.75, blue: 0.90, alpha: 1)
         
-        //スクロールするノード
+        //スクロールする親ノード
         scrollNode = SKNode()
         addChild(scrollNode)
         
@@ -46,13 +54,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         wallNode = SKNode()
         scrollNode.addChild(wallNode)
         
+        //課題アイテム用
+        coinNode = SKSpriteNode()
+        scrollNode.addChild(coinNode)
+        
+        
         //各種スプライトを生成する処理をメソッドに分割
         setupGround()
         setupCloud()
         setupWall()
         setupBird()
-        
         setupScoreLabel()
+        
+        //課題アイテム用
+        setupCoin()
     }
     
     
@@ -166,7 +181,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //移動する距離を計算
         let movingDistance = CGFloat(self.frame.size.width + wallTexture.size().width)
         
-        //画面が今で移動するアクション
+        //画面外まで移動するアクション
         let moveWall = SKAction.moveBy(x: -movingDistance, y: 0, duration: 4)
         
         //自身を取り除くアクション
@@ -250,6 +265,63 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         wallNode.run(repeatForeverAnimation)
     }
     
+    ///課題アイテム用処理
+    func setupCoin() {
+        let coinTexture = SKTexture (imageNamed: "coin")
+        coinTexture.filteringMode = .linear
+        
+        //移動する距離を計算
+        let coinMoveDistance = CGFloat(self.frame.size.width + coinTexture.size().width)
+        //移動するアクション
+        let moveCoin = SKAction.moveBy(x: -coinMoveDistance, y: 0, duration: 4)
+        //自身を消す処理
+        let removeCoin = SKAction.removeFromParent()
+        //移動->消すの流れを順に処理
+        let CoinAnimation = SKAction.sequence([moveCoin, removeCoin])
+    
+        //コインを生成する処理
+        let createCoinAnimation = SKAction.run ({
+            
+            //コインの出現Y軸をランダムに
+            let ramdom_y = CGFloat.random(in: coinTexture.size().height ..< self.frame.size.height / 2)
+            //コイン関連のノードを乗せるノード
+            let coin = SKNode()
+            coin.position = CGPoint(x: self.frame.size.width, y: ramdom_y)
+            coin.zPosition = -50
+            
+            //スプライトに物理演算を設定
+            coin.physicsBody?.categoryBitMask = self.coinCategory
+            
+            //衝突時に動かないよう設定
+            coin.physicsBody?.isDynamic = false
+            
+            //コイン作成
+            let coinSprite = SKSpriteNode(texture: coinTexture)
+            
+            //コインスコアアップ用のノード
+            let coinScoreNode = SKNode()
+            coinScoreNode.physicsBody = SKPhysicsBody(circleOfRadius: coinTexture.size().width / 2)
+            coinScoreNode.physicsBody?.isDynamic = false
+            coinScoreNode.physicsBody?.categoryBitMask = self.coinCategory
+            coinScoreNode.physicsBody?.contactTestBitMask = self.birdCategory
+            
+            coin.addChild(coinScoreNode)
+            coin.addChild(coinSprite)
+            coin.run(CoinAnimation)
+            self.coinNode.addChild(coin)
+        })
+        
+        //次のコイン作成までの待ち時間アクション
+        let waitCoinAnimation = SKAction.wait(forDuration: 3)
+        
+        //コイン作成->時間待ち->コイン作成を無限に繰り返すアクション
+        let repeatCoinAnimation = SKAction.repeatForever(SKAction.sequence([createCoinAnimation, waitCoinAnimation]))
+        //スプライトに追加
+        coinNode.run(repeatCoinAnimation)
+
+        
+        
+    }
     
     /// 鳥の処理
     func setupBird() {
@@ -288,7 +360,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     /// リスタート
     func restart() {
         score = 0
+        coin = 0
         scoreLabelNode.text = "Score:\(score)"
+        coinScoreLabelNode.text = "Coin:\(coin)"
         
         bird.position = CGPoint(x: self.frame.size.width * 0.2, y: self.frame.size.height * 0.7)
         bird.physicsBody?.velocity = CGVector.zero
@@ -296,6 +370,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         bird.zRotation = 0
         
         wallNode.removeAllChildren()
+        coinNode.removeAllChildren()
         
         bird.speed = 1
         scrollNode.speed = 1
@@ -311,7 +386,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
         scoreLabelNode.text = "Score\(score)"
         
-        addChild(scoreLabelNode)
+        self.addChild(scoreLabelNode)
         
         bestScoreLabelNode = SKLabelNode()
         bestScoreLabelNode.fontColor = UIColor.black
@@ -323,6 +398,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         bestScoreLabelNode.text = "Best Score:\(bestScore)"
         
         self.addChild(bestScoreLabelNode)
+        
+        coinScoreLabelNode = SKLabelNode()
+        coinScoreLabelNode.fontColor = UIColor.black
+        coinScoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 120)
+        coinScoreLabelNode.zPosition = 100
+        coinScoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
+        
+        let CoinScore = userDefaults.integer(forKey: "coin")
+        coinScoreLabelNode.text = "Coin:\(CoinScore)"
+        
+        self.addChild(coinScoreLabelNode)
     }
     
     //SKPhysicsContactDelegateのメソッド。衝突時に呼ばれる
@@ -346,6 +432,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 userDefaults.set(bestScore, forKey: "BSET")
                 userDefaults.synchronize()
             }
+        } else if (contact.bodyA.categoryBitMask & coinCategory) == coinCategory || (contact.bodyB.categoryBitMask & coinCategory) == coinCategory {
+            //コイン用の物体と衝突
+            print("CoinUp")
+            coin += 1
+            coinScoreLabelNode.text = "Coin:\(coin)"
         } else {
             //壁か地面と衝突
             print("GameOver")
@@ -361,6 +452,4 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             })
         }
     }
-    
-    //画面タップ時に呼ばれる
 }
