@@ -278,10 +278,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let removeCoin = SKAction.removeFromParent()
         //移動->消すの流れを順に処理
         let CoinAnimation = SKAction.sequence([moveCoin, removeCoin])
-    
         //コインを生成する処理
         let createCoinAnimation = SKAction.run ({
-            
             //コインの出現Y軸をランダムに
             let ramdom_y = CGFloat.random(in: coinTexture.size().height ..< self.frame.size.height / 2)
             //コイン関連のノードを乗せるノード
@@ -299,28 +297,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let coinSprite = SKSpriteNode(texture: coinTexture)
             
             //コインスコアアップ用のノード
-            let coinScoreNode = SKNode()
-            coinScoreNode.physicsBody = SKPhysicsBody(circleOfRadius: coinTexture.size().width / 2)
-            coinScoreNode.physicsBody?.isDynamic = false
-            coinScoreNode.physicsBody?.categoryBitMask = self.coinCategory
-            coinScoreNode.physicsBody?.contactTestBitMask = self.birdCategory
+            coin.physicsBody = SKPhysicsBody(circleOfRadius: coinTexture.size().width / 2)
+            coin.physicsBody?.isDynamic = false
+            coin.physicsBody?.categoryBitMask = self.coinCategory
+            coin.physicsBody?.contactTestBitMask = self.birdCategory
             
-            coin.addChild(coinScoreNode)
             coin.addChild(coinSprite)
             coin.run(CoinAnimation)
             self.coinNode.addChild(coin)
         })
-        
         //次のコイン作成までの待ち時間アクション
         let waitCoinAnimation = SKAction.wait(forDuration: 3)
-        
         //コイン作成->時間待ち->コイン作成を無限に繰り返すアクション
         let repeatCoinAnimation = SKAction.repeatForever(SKAction.sequence([createCoinAnimation, waitCoinAnimation]))
         //スプライトに追加
         coinNode.run(repeatCoinAnimation)
-
-        
-        
     }
     
     /// 鳥の処理
@@ -437,6 +428,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             print("CoinUp")
             coin += 1
             coinScoreLabelNode.text = "Coin:\(coin)"
+            
+            //取得音用
+            let getSound = SKAction.playSoundFileNamed("Shortbridge30-1.mp3", waitForCompletion: false)
+            self.run(getSound)
+            
+            contact.bodyB.node?.removeFromParent()
+            //取得音
+            
         } else {
             //壁か地面と衝突
             print("GameOver")
